@@ -1,31 +1,37 @@
 ---
-version: '3.7'
 services:
   app:
-    image: maximelaplanche/robert2:0.19.2
+    container_name: app
+    env_file: .env
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        PHP_BASE_IMAGE: ${PHP_BASE_IMAGE}
+        ROBERT2_VERSION: ${ROBERT2_VERSION}
+    ports:
+      - 8000:80
     networks:
       - robert2_network
-      - robert2_db_network
     depends_on:
       - db
 
   db:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    container_name: db
+    image: mariadb
+    command: --innodb_default_row_format=DYNAMIC --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: MdPToRootU3rF0rR0b3rt2
-      MYSQL_DATABASE: robert2_db
-      MYSQL_USER: robert2_usr
-      MYSQL_PASSWORD: MdPToRootU3rF0rR0b3rt2Us3r
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - robert2_data:/var/lib/mysql
     networks:
-      - robert2_db_network
+      - robert2_network
 
 # Docker Networks
 networks:
-  robert2_db_network:
   robert2_network:
 
 # Docker volumes
